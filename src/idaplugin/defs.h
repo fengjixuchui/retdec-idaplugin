@@ -80,7 +80,8 @@ int runCommand(
 		const std::string& cmd,
 		const std::string& args,
 		intptr_t* pid = nullptr,
-		bool showWarnings = false);
+		bool showWarnings = false,
+		void** hdl = nullptr);
 
 /**
  * General information used by this plugin.
@@ -149,7 +150,8 @@ class RdGlobalInfo
 		qthread_t decompThread      = nullptr;
 		func_t *decompiledFunction  = nullptr;
 		// PID/Handle of launched decompilation process.
-		intptr_t decompPid = 0;
+		intptr_t decompPid          = 0;
+		void* hDecomp               = nullptr;
 
 	// Plugin configuration information.
 	//
