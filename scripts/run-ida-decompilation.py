@@ -43,8 +43,8 @@ def parse_args(args):
                         help='Output file (default: file.c). All but the last component must exist.')
 
     parser.add_argument('-i', '--ida',
-                        dest='ida_path',
-                        default=os.environ.get('IDA_PATH'),
+                        dest='ida_dir',
+                        default=os.environ.get('IDA_DIR'),
                         help='Path to the IDA directory.')
 
     parser.add_argument('-d', '--idb',
@@ -65,15 +65,15 @@ def parse_args(args):
 
 
 def check_args(args):
-    if args.ida_path is None:
+    if args.ida_dir is None:
         print_error_and_die('Path to IDA directory was not specified.')
-    if not os.path.isdir(args.ida_path):
-        print_error_and_die('Specified path to IDA directory is not a directory:', args.ida_path)
+    if not os.path.isdir(args.ida_dir):
+        print_error_and_die('Specified path to IDA directory is not a directory:', args.ida_dir)
 
     if args.ea64:
-        args.idat_path = os.path.join(args.ida_path, 'idat64.exe' if is_windows() else 'idat64')
+        args.idat_path = os.path.join(args.ida_dir, 'idat64.exe' if is_windows() else 'idat64')
     else:
-        args.idat_path = os.path.join(args.ida_path, 'idat.exe' if is_windows() else 'idat')
+        args.idat_path = os.path.join(args.ida_dir, 'idat.exe' if is_windows() else 'idat')
 
     if not os.path.exists(args.idat_path):
         print_error_and_die('IDA console application does not exist:', args.idat_path)
@@ -100,9 +100,11 @@ def main():
     if args.file_dir != args.output_dir:
         shutil.copy(args.file, args.output_dir)
         args.file = os.path.join(args.output_dir, os.path.basename(args.file))
+        ida_in = args.file
     if args.idb_path and os.path.dirname(args.idb_path) != args.output_dir:
         shutil.copy(args.idb_path, args.output_dir)
         args.idb_path = os.path.join(args.output_dir, os.path.basename(args.idb_path))
+        ida_in = args.idb_path
 
     rc = 0
     cmd = [args.idat_path, '-A']
@@ -114,7 +116,8 @@ def main():
     else:
         cmd.append('-S' + script_full + ' "' + args.file + '"')
 
-    cmd.append(args.file)
+    #cmd.append(args.file)
+    cmd.append(ida_in)
 
     print('RUN: ' + ' '.join(cmd))
     rc = subprocess.call(cmd)
